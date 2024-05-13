@@ -10,40 +10,81 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("Marty's App")
 
-        left_top_button = QPushButton("Press")
+        left_top_button = QPushButton()
         left_top_button.setFixedSize(QSize(80, 80))
-        top_button = QPushButton("Press")
+        left_top_button.setIcon(QIcon('./img/left_top_button.png'))
+        left_top_button.setIconSize(QSize(60,60))
+
+        top_button = QPushButton()
         top_button.setFixedSize(QSize(80, 80))
-        right_top_button = QPushButton("Press")
+        top_button.setIcon(QIcon('./img/top_button.png'))
+        top_button.setIconSize(QSize(60,60))
+
+        right_top_button = QPushButton()
         right_top_button.setFixedSize(QSize(80, 80))
-        left_button = QPushButton("Press")
+        right_top_button.setIcon(QIcon('./img/right_top_button.png'))
+        right_top_button.setIconSize(QSize(60,60))
+
+        left_button = QPushButton()
         left_button.setFixedSize(QSize(80, 80))
-        center_button = QPushButton("Press")
+        left_button.setIcon(QIcon('./img/left_button.png'))
+        left_button.setIconSize(QSize(60,60))
+
+        center_button = QPushButton()
         center_button.setFixedSize(QSize(80, 80))
-        right_button = QPushButton("Press")
+        center_button.setIcon(QIcon('./img/center_button.png'))
+        center_button.setIconSize(QSize(60,60))
+
+        right_button = QPushButton()
         right_button.setFixedSize(QSize(80, 80))
-        down_button = QPushButton("Press")
+        right_button.setIcon(QIcon('./img/right_button.png'))
+        right_button.setIconSize(QSize(60,60))
+
+        down_button = QPushButton()
         down_button.setFixedSize(QSize(80, 80))
+        down_button.setIcon(QIcon('./img/down_button.png'))
+        down_button.setIconSize(QSize(60,60))
 
         get_ready_btn = QPushButton("Get Ready")
         get_ready_btn.setFixedSize(QSize(150, 150))
         #get_ready_btn.clicked.connect(self.handleButton)
         get_ready_btn.setIcon(QIcon('./img/get_ready_btn.png'))
         get_ready_btn.setIconSize(QSize(100,100))
+
         show_off_btn = QPushButton("Show Off")
         show_off_btn.setFixedSize(QSize(150, 150))
+        show_off_btn.setIcon(QIcon('./img/show_off_btn.png'))
+        show_off_btn.setIconSize(QSize(100,100))
+
         wave_left_btn = QPushButton("Wave Left")
         wave_left_btn.setFixedSize(QSize(150, 150))
+        wave_left_btn.setIcon(QIcon('./img/wave_left_btn.png'))
+        wave_left_btn.setIconSize(QSize(100,100))
+
         wave_right_btn = QPushButton("Wave Right")
         wave_right_btn.setFixedSize(QSize(150, 150))
+        wave_right_btn.setIcon(QIcon('./img/wave_right_btn.png'))
+        wave_right_btn.setIconSize(QSize(100,100))
+
         dance_btn = QPushButton("Dance!")
         dance_btn.setFixedSize(QSize(150, 150))
+        dance_btn.setIcon(QIcon('./img/dance_btn.png'))
+        dance_btn.setIconSize(QSize(100,100))
+
         wiggle_eyes_btn = QPushButton("Wiggle Eyes")
         wiggle_eyes_btn.setFixedSize(QSize(150, 150))
+        wiggle_eyes_btn.setIcon(QIcon('./img/wiggle_eyes_btn.png'))
+        wiggle_eyes_btn.setIconSize(QSize(100,100))
+
         kick_left_btn = QPushButton("Kick Left")
         kick_left_btn.setFixedSize(QSize(150, 150))
+        kick_left_btn.setIcon(QIcon('./img/kick_left_btn.png'))
+        kick_left_btn.setIconSize(QSize(100,100))
+
         kick_right_btn = QPushButton("Kick Right")
         kick_right_btn.setFixedSize(QSize(150, 150))
+        kick_right_btn.setIcon(QIcon('./img/kick_right_btn.png'))
+        kick_right_btn.setIconSize(QSize(100,100))
 
         main_layout = QHBoxLayout()
         main_container = QWidget()
@@ -102,7 +143,7 @@ window.show()
 
 
 # Styling
-app.setStyleSheet("QWidget { background-color: rgba(212, 237, 244, 0.6) }")
+app.setStyleSheet("MainWindow { background-color: rgba(212, 237, 244, 0.8) }")
 
 
 
