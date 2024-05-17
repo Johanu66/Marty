@@ -1,8 +1,35 @@
 import sys
 
-from PyQt6.QtGui import QIcon
+from martypy import Marty
+
 from PyQt6.QtCore import QSize, Qt
-from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QLabel, QGridLayout
+from PyQt6.QtGui import QIcon, QPixmap
+from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QLabel, QGridLayout, QSlider
+
+def create_custom_button(image_path, text):
+    button = QPushButton()
+    button.setFixedSize(QSize(150, 150))
+    button_layout = QVBoxLayout()
+    
+    button_icon = QLabel()
+    button_icon.setPixmap(QPixmap(image_path))
+    button_icon.setScaledContents(True)
+    
+    button_layout.addWidget(button_icon, alignment=Qt.AlignmentFlag.AlignCenter)
+    button_layout.addWidget(QLabel(text), alignment=Qt.AlignmentFlag.AlignCenter)
+    
+    button.setLayout(button_layout)
+    
+    return button
+
+def direction_button(image_path):
+    button = QPushButton()
+    button.setFixedSize(QSize(80, 80))
+    button.setIcon(QIcon(image_path))
+    button.setIconSize(QSize(60,60))
+
+    return button
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -10,81 +37,22 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("Marty's App")
 
-        left_top_button = QPushButton()
-        left_top_button.setFixedSize(QSize(80, 80))
-        left_top_button.setIcon(QIcon('./img/left_top_button.png'))
-        left_top_button.setIconSize(QSize(60,60))
+        left_top_button = direction_button('./img/left_top_button.png')
+        top_button = direction_button('./img/top_button.png')
+        right_top_button = direction_button('./img/right_top_button.png')
+        left_button = direction_button('./img/left_button.png')
+        center_button = direction_button('./img/center_button.png')
+        right_button = direction_button('./img/right_button.png')
+        down_button = direction_button('./img/down_button.png')
 
-        top_button = QPushButton()
-        top_button.setFixedSize(QSize(80, 80))
-        top_button.setIcon(QIcon('./img/top_button.png'))
-        top_button.setIconSize(QSize(60,60))
-
-        right_top_button = QPushButton()
-        right_top_button.setFixedSize(QSize(80, 80))
-        right_top_button.setIcon(QIcon('./img/right_top_button.png'))
-        right_top_button.setIconSize(QSize(60,60))
-
-        left_button = QPushButton()
-        left_button.setFixedSize(QSize(80, 80))
-        left_button.setIcon(QIcon('./img/left_button.png'))
-        left_button.setIconSize(QSize(60,60))
-
-        center_button = QPushButton()
-        center_button.setFixedSize(QSize(80, 80))
-        center_button.setIcon(QIcon('./img/center_button.png'))
-        center_button.setIconSize(QSize(60,60))
-
-        right_button = QPushButton()
-        right_button.setFixedSize(QSize(80, 80))
-        right_button.setIcon(QIcon('./img/right_button.png'))
-        right_button.setIconSize(QSize(60,60))
-
-        down_button = QPushButton()
-        down_button.setFixedSize(QSize(80, 80))
-        down_button.setIcon(QIcon('./img/down_button.png'))
-        down_button.setIconSize(QSize(60,60))
-
-        get_ready_btn = QPushButton("Get Ready")
-        get_ready_btn.setFixedSize(QSize(150, 150))
-        #get_ready_btn.clicked.connect(self.handleButton)
-        get_ready_btn.setIcon(QIcon('./img/get_ready_btn.png'))
-        get_ready_btn.setIconSize(QSize(100,100))
-
-        show_off_btn = QPushButton("Show Off")
-        show_off_btn.setFixedSize(QSize(150, 150))
-        show_off_btn.setIcon(QIcon('./img/show_off_btn.png'))
-        show_off_btn.setIconSize(QSize(100,100))
-
-        wave_left_btn = QPushButton("Wave Left")
-        wave_left_btn.setFixedSize(QSize(150, 150))
-        wave_left_btn.setIcon(QIcon('./img/wave_left_btn.png'))
-        wave_left_btn.setIconSize(QSize(100,100))
-
-        wave_right_btn = QPushButton("Wave Right")
-        wave_right_btn.setFixedSize(QSize(150, 150))
-        wave_right_btn.setIcon(QIcon('./img/wave_right_btn.png'))
-        wave_right_btn.setIconSize(QSize(100,100))
-
-        dance_btn = QPushButton("Dance!")
-        dance_btn.setFixedSize(QSize(150, 150))
-        dance_btn.setIcon(QIcon('./img/dance_btn.png'))
-        dance_btn.setIconSize(QSize(100,100))
-
-        wiggle_eyes_btn = QPushButton("Wiggle Eyes")
-        wiggle_eyes_btn.setFixedSize(QSize(150, 150))
-        wiggle_eyes_btn.setIcon(QIcon('./img/wiggle_eyes_btn.png'))
-        wiggle_eyes_btn.setIconSize(QSize(100,100))
-
-        kick_left_btn = QPushButton("Kick Left")
-        kick_left_btn.setFixedSize(QSize(150, 150))
-        kick_left_btn.setIcon(QIcon('./img/kick_left_btn.png'))
-        kick_left_btn.setIconSize(QSize(100,100))
-
-        kick_right_btn = QPushButton("Kick Right")
-        kick_right_btn.setFixedSize(QSize(150, 150))
-        kick_right_btn.setIcon(QIcon('./img/kick_right_btn.png'))
-        kick_right_btn.setIconSize(QSize(100,100))
+        get_ready_btn = create_custom_button('./img/get_ready_btn.png', 'Get Ready')
+        show_off_btn = create_custom_button('./img/show_off_btn.png', 'Show Off')
+        wave_left_btn = create_custom_button('./img/wave_left_btn.png', 'Wave Left')
+        wave_right_btn = create_custom_button('./img/wave_right_btn.png', 'Wave Right')
+        dance_btn = create_custom_button('./img/dance_btn.png', 'Dance!')
+        wiggle_eyes_btn = create_custom_button('./img/wiggle_eyes_btn.png', 'Wiggle Eyes')
+        kick_left_btn = create_custom_button('./img/kick_left_btn.png', 'Kick Left')
+        kick_right_btn = create_custom_button('./img/kick_right_btn.png', 'Kick Right')
 
         main_layout = QHBoxLayout()
         main_container = QWidget()
@@ -119,11 +87,26 @@ class MainWindow(QMainWindow):
         right_container = QWidget()
         right_container.setLayout(right_layout)
 
-        right_layout.addWidget(QLabel("Nav Bar"))
+        # Create a QLabel
+        self.label = QLabel('Value: 0', self)
+        
+        # Create a QSlider
+        self.slider = QSlider(Qt.Orientation.Horizontal, self)
+        self.slider.setMinimum(0)
+        self.slider.setMaximum(100)
+        self.slider.setValue(0)
+        
+        # Connect the slider value change to the function
+        self.slider.valueChanged.connect(self.updateLabel)
+
+        right_layout.addWidget(self.label)
+        right_layout.addWidget(self.slider)
         right_layout.addWidget(actions_btn_container)
 
         main_layout.addWidget(left_container)
         main_layout.addWidget(right_container)
+
+        self.setCentralWidget(main_container)
 
         # Styling
         left_container.setStyleSheet("QPushButton { background-color: #3EC8ED }")
@@ -132,9 +115,12 @@ class MainWindow(QMainWindow):
             "color: #77A1B2;"+
             "border: 2px solid #3EC8ED;"+
             "border-radius: 20px;"
+        "} QLabel { "+
+            "color: #77A1B2;"+
         "}")
 
-        self.setCentralWidget(main_container)
+    def updateLabel(self, value):
+        self.label.setText(f'Value: {value}')
 
 app = QApplication(sys.argv)
 
