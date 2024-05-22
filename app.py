@@ -1,34 +1,70 @@
 import sys
-
 from martypy import Marty
-
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtGui import QIcon, QPixmap
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QLabel, QGridLayout, QSlider
 
-def create_custom_button(image_path, text):
+def create_custom_button(image, text):
     button = QPushButton()
     button.setFixedSize(QSize(150, 150))
     button_layout = QVBoxLayout()
     
     button_icon = QLabel()
-    button_icon.setPixmap(QPixmap(image_path))
+    button_icon.setPixmap(QPixmap('./img/'+ image +'_btn.png'))
     button_icon.setScaledContents(True)
     
     button_layout.addWidget(button_icon, alignment=Qt.AlignmentFlag.AlignCenter)
     button_layout.addWidget(QLabel(text), alignment=Qt.AlignmentFlag.AlignCenter)
-    
     button.setLayout(button_layout)
+
+    button.clicked.connect(lambda: handle_button_click(image))
     
     return button
 
-def direction_button(image_path):
+def direction_button(image):
     button = QPushButton()
     button.setFixedSize(QSize(80, 80))
-    button.setIcon(QIcon(image_path))
+    button.setIcon(QIcon('./img/'+ image +'_button.png'))
     button.setIconSize(QSize(60,60))
+    button.clicked.connect(lambda: handle_button_click(image))
 
     return button
+
+def handle_button_click(type):
+    match type:
+        case 'left_top':
+            marty.left_top()
+        case 'top':
+            marty.top()
+        case 'right_top':
+            marty.right_top()
+        case 'left':
+            marty.left()
+        case 'center':
+            marty.center()
+        case 'right':
+            marty.right()
+        case 'down':
+            marty.down()
+        case 'get_ready':
+            marty.get_ready()
+        case 'show_off':
+            marty.show_off()
+        case 'wave_left':
+            marty.wave_left()
+        case 'wave_right':
+            marty.wave_right()
+        case 'dance':
+            marty.dance()
+        case 'wiggle_eyes':
+            marty.wiggle_eyes()
+        case 'kick_left':
+            marty.kick_left()
+        case 'kick_right':
+            marty.kick_right()
+        case _:
+            print('Unknown action')
+
 
 
 class MainWindow(QMainWindow):
@@ -37,22 +73,22 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("Marty's App")
 
-        left_top_button = direction_button('./img/left_top_button.png')
-        top_button = direction_button('./img/top_button.png')
-        right_top_button = direction_button('./img/right_top_button.png')
-        left_button = direction_button('./img/left_button.png')
-        center_button = direction_button('./img/center_button.png')
-        right_button = direction_button('./img/right_button.png')
-        down_button = direction_button('./img/down_button.png')
+        left_top_button = direction_button('left_top')
+        top_button = direction_button('top')
+        right_top_button = direction_button('right_top')
+        left_button = direction_button('left')
+        center_button = direction_button('center')
+        right_button = direction_button('right')
+        down_button = direction_button('down')
 
-        get_ready_btn = create_custom_button('./img/get_ready_btn.png', 'Get Ready')
-        show_off_btn = create_custom_button('./img/show_off_btn.png', 'Show Off')
-        wave_left_btn = create_custom_button('./img/wave_left_btn.png', 'Wave Left')
-        wave_right_btn = create_custom_button('./img/wave_right_btn.png', 'Wave Right')
-        dance_btn = create_custom_button('./img/dance_btn.png', 'Dance!')
-        wiggle_eyes_btn = create_custom_button('./img/wiggle_eyes_btn.png', 'Wiggle Eyes')
-        kick_left_btn = create_custom_button('./img/kick_left_btn.png', 'Kick Left')
-        kick_right_btn = create_custom_button('./img/kick_right_btn.png', 'Kick Right')
+        get_ready_btn = create_custom_button('get_ready', 'Get Ready')
+        show_off_btn = create_custom_button('show_off', 'Show Off')
+        wave_left_btn = create_custom_button('wave_left', 'Wave Left')
+        wave_right_btn = create_custom_button('wave_right', 'Wave Right')
+        dance_btn = create_custom_button('dance', 'Dance!')
+        wiggle_eyes_btn = create_custom_button('wiggle_eyes', 'Wiggle Eyes')
+        kick_left_btn = create_custom_button('kick_left', 'Kick Left')
+        kick_right_btn = create_custom_button('kick_right', 'Kick Right')
 
         main_layout = QHBoxLayout()
         main_container = QWidget()
@@ -88,7 +124,7 @@ class MainWindow(QMainWindow):
         right_container.setLayout(right_layout)
 
         # Create a QLabel
-        self.label = QLabel('Value: 0', self)
+        self.label = QLabel('Speed: 0', self)
         
         # Create a QSlider
         self.slider = QSlider(Qt.Orientation.Horizontal, self)
@@ -97,7 +133,7 @@ class MainWindow(QMainWindow):
         self.slider.setValue(0)
         
         # Connect the slider value change to the function
-        self.slider.valueChanged.connect(self.updateLabel)
+        self.slider.valueChanged.connect(self.updateSpeed)
 
         right_layout.addWidget(self.label)
         right_layout.addWidget(self.slider)
@@ -119,18 +155,19 @@ class MainWindow(QMainWindow):
             "color: #77A1B2;"+
         "}")
 
-    def updateLabel(self, value):
-        self.label.setText(f'Value: {value}')
+    def updateSpeed(self, value):
+        self.label.setText(f'Speed: {value}')
+        marty.set_speed(value)
 
 app = QApplication(sys.argv)
 
 window = MainWindow()
-window.show()
 
+#marty = Marty('wifi', '192.168.0.107')
+
+window.show()
 
 # Styling
 app.setStyleSheet("MainWindow { background-color: rgba(212, 237, 244, 0.8) }")
-
-
 
 app.exec()
