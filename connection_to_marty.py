@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed May 15 10:36:49 2024
-
-@author: HP
-"""
 
 from martypy import Marty
 
@@ -12,6 +6,8 @@ class MartyController:
         self.marty = None
         self.connection_type = connection_type
         self.ip_address = ip_address
+        self.speed = 1500
+        self.step_length = 25
 
     def connect(self):
         try:
@@ -30,11 +26,28 @@ class MartyController:
         else:
             print("Marty is not connected.")
 
+    
+    def forward(self):
+        self.marty.walk(1, "auto", 0, self.step_length, self.speed)
+        print("Marty avance")
+        
+    def backward(self):
+        self.marty.walk(1, "auto", 0, -1 * self.step_length, self.speed)
+        print("Marty recule")
+        
+    def get_ready(self):
+        self.marty.get_ready()
 
-controller = MartyController("wifi", "192.168.0.100")
+    def setSpeed(self, new_speed):
+        self.speed = new_speed
+        
+    def setStepLength(self, new_step_length):
+        self.step_length = new_step_length
+        
+
+controller = MartyController("wifi", "192.168.0.7")
 controller.connect()
-#controller.marty.walk(5)  
 if controller.marty is not None:
-    controller.marty.walk(5)
-    #controller.marty.dance()
-#controller.disconnect()
+    controller.get_ready()
+    controller.forward()
+    controller.backward()
