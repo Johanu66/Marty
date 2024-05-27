@@ -31,7 +31,7 @@ class MartyController:
             print("Marty is not connected.")
 
 
-controller = MartyController("wifi", "192.168.0.100")
+controller = MartyController("wifi", "192.168.0.112")
 controller.connect()
 #controller.marty.walk(5)  
 if controller.marty is not None:
