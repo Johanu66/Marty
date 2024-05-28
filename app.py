@@ -3,6 +3,7 @@ from martypy import Marty
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtGui import QIcon, QPixmap
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QLabel, QGridLayout, QSlider
+from connection_to_marty import MartyController
 
 def create_custom_button(image, text):
     button = QPushButton()
@@ -35,7 +36,7 @@ def handle_button_click(type):
         case 'left_top':
             marty.left_top()
         case 'top':
-            marty.top()
+            marty.forward()
         case 'right_top':
             marty.right_top()
         case 'left':
@@ -45,7 +46,7 @@ def handle_button_click(type):
         case 'right':
             marty.right()
         case 'down':
-            marty.down()
+            marty.backward()
         case 'get_ready':
             marty.get_ready()
         case 'show_off':
@@ -122,21 +123,40 @@ class MainWindow(QMainWindow):
         right_layout = QVBoxLayout()
         right_container = QWidget()
         right_container.setLayout(right_layout)
-
-        # Create a QLabel
-        self.label = QLabel('Speed: 0', self)
         
         # Create a QSlider
         self.slider = QSlider(Qt.Orientation.Horizontal, self)
-        self.slider.setMinimum(0)
-        self.slider.setMaximum(100)
-        self.slider.setValue(0)
+        self.slider.setMinimum(1000)
+        self.slider.setMaximum(3000)
+        self.slider.setValue(2500)
         
         # Connect the slider value change to the function
         self.slider.valueChanged.connect(self.updateSpeed)
 
-        right_layout.addWidget(self.label)
-        right_layout.addWidget(self.slider)
+        # Create QLabel for images
+        slider_left_image_label = QLabel(self)
+        slider_right_image_label = QLabel(self)
+
+        # Load images into QLabels
+        left_image = QPixmap('./img/slow.png').scaled(100, 100)
+        right_image = QPixmap('./img/fast.png').scaled(100, 100)
+
+        slider_left_image_label.setPixmap(left_image)
+        slider_right_image_label.setPixmap(right_image)
+
+        # Create a QHBoxLayout for the slider and images
+        slider_layout = QHBoxLayout()
+        slider_container = QWidget()
+        slider_container.setLayout(slider_layout)
+        slider_layout.addWidget(slider_left_image_label)
+        slider_layout.addWidget(self.slider)
+        slider_layout.addWidget(slider_right_image_label)
+
+        # Create a QLabel
+        # self.label = QLabel('Speed: 1500', self)
+        # right_layout.addWidget(self.label)
+
+        right_layout.addWidget(slider_container)
         right_layout.addWidget(actions_btn_container)
 
         main_layout.addWidget(left_container)
@@ -156,14 +176,17 @@ class MainWindow(QMainWindow):
         "}")
 
     def updateSpeed(self, value):
-        self.label.setText(f'Speed: {value}')
-        marty.set_speed(value)
+        # self.label.setText(f'Speed: {value}')
+        marty.setSpeed(4000-value)
 
 app = QApplication(sys.argv)
 
 window = MainWindow()
 
-#marty = Marty('wifi', '192.168.0.107')
+marty = MartyController("wifi", "192.168.0.104")
+marty.connect()
+if marty.marty is not None:
+    marty.get_ready()
 
 window.show()
 
@@ -171,3 +194,5 @@ window.show()
 app.setStyleSheet("MainWindow { background-color: rgba(212, 237, 244, 0.8) }")
 
 app.exec()
+
+marty.disconnect()
