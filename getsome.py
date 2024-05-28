@@ -34,9 +34,9 @@ class MartyController:
     def get_battery_percentage(self):
         if self.marty is not None:
             try:
-                print (self.marty.get_battery_remaining())
-                print(self.marty.get_battery_voltage() )
-                return self.marty.get_battery_voltage() 
+                print ("battery percentage is :",self.marty.get_battery_remaining())
+                
+                
                 return self.marty.get_battery_remaining()
             
             except Exception as e:
@@ -46,34 +46,72 @@ class MartyController:
         
         if self.marty is not None:
             try:
-                print (self.marty.get_distance_sensor())
-                return self.marty.get_distance_sensor()
+                
+                print(self.marty.get_obstacle_sensor_reading("Left"))\
+               
+                return self.marty.get_obstacle_sensor_reading("Left")
+            
                 
             
             except Exception as e:
                 print("An error occurred while getting the battery percentage: " + str(e))
                 
     def get_video_flux(self):
-        self.marty.start_camera()
-        while True:
-            frame = self.marty.get_camera_frame()  
 
-            cv2.imshow('Marty Video', frame) 
+        if self.marty is not None:
+            try:
+                self.marty.start_camera()
 
-            if cv2.waitKey(1) & 0xFF == ord('q'): 
-                break
+                while True:
+                    frame = self.marty.get_camera_frame()
+                    
+                    # Flip the frame horizontally (as Marty's camera is reversed)
+                    frame = cv2.flip(frame, 1)
+                    
+                    cv2.imshow('Marty Video', frame)
+
+                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                        break
+
+                cv2.destroyAllWindows()
+            except Exception as e:
+                print("An error occurred while streaming video: " + str(e))
+        else:
+            print("Marty is not connected.")
     def get_color_sensor(self):
-        
-        ground= self.mary.foot_on_ground('RightIRFoot')
+
+        color =""
+        ground= self.marty.foot_on_ground('RightIRFoot')
         if (ground):
-            color_right = self.marty.get_color_sensor_reading('RightFoot')  
-            color_left = self.marty.get_color_sensor_reading('LeftFoot')  
-            return color_right, color_left 
+            color_right = self.marty.get_ground_sensor_reading('RightIRFoot') 
+            
+            if(color_right<=173 and color_right>=175) :
+                color = "red"
+                print(color)
+
+            elif(color_right==177) :
+                color = "yellow"
+                print(color)        
+
+            elif( color_right==173) :
+                color = "blue"
+                print(color)                              
+
+            elif(color_right ==170 or color_right ==171):
+                color = "violet"
+                print(color)
+
+
+
+
+        
+            print(color_right , color) 
+            return color_right ,   
         else :
-            print ("marty aint on the ground")
+            print ("marty is on the ground")
             
-        
-        
+            
+    
             
             
         
@@ -83,10 +121,16 @@ class MartyController:
         
 
 
-controller = MartyController("wifi", "192.168.0.112")
+controller = MartyController("wifi", "192.168.0.4")
 controller.connect()
 #controller.marty.walk(5)  
 if controller.marty is not None:
-    controller.marty.walk(5)
+    
     #controller.marty.dance()
-#controller.disconnect()
+
+    controller.get_battery_percentage()
+    controller.get_color_sensor()
+    
+    
+    controller.disconnect()
+

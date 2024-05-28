@@ -29,6 +29,8 @@ class MartyController:
                 print("An error occurred while disconnecting from Marty: " + str(e))
         else:
             print("Marty is not connected.")
+            
+    
 
 
 controller = MartyController("wifi", "192.168.0.112")
