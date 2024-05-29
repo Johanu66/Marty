@@ -70,8 +70,6 @@ def handle_button_click(type):
         case _:
             print('Unknown action')
 
-
-
 def create_custom_button(image, text):
     button = QPushButton()
     button.setFixedSize(QSize(150, 150))
@@ -94,9 +92,7 @@ def direction_button(image):
     button.setIcon(QIcon('./img/'+ image +'_button.png'))
     button.setIconSize(QSize(60,60))
     button.setType(image)
-
     return button
-
 
 
 class MainWindow(QMainWindow):
@@ -104,6 +100,8 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.setWindowTitle("Marty's App")
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.setFocus()
 
         left_top_button = direction_button('left_top')
         top_button = direction_button('top')
@@ -210,11 +208,26 @@ class MainWindow(QMainWindow):
         # self.label.setText(f'Speed: {value}')
         marty.setSpeed(4000-value)
 
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_Left or event.key() == Qt.Key.Key_4:
+            handle_button_click('left')
+        elif event.key() == Qt.Key.Key_Right or event.key() == Qt.Key.Key_6:
+            handle_button_click('right')
+        elif event.key() == Qt.Key.Key_Up or event.key() == Qt.Key.Key_8:
+            handle_button_click('top')
+        elif event.key() == Qt.Key.Key_Down or event.key() == Qt.Key.Key_2:
+            handle_button_click('down')
+        else:
+            print(f'Key {event.text()} is pressed')
+
+    # def keyReleaseEvent(self, event):
+    #     print('Key was released')
+
 app = QApplication(sys.argv)
 
 window = MainWindow()
 
-marty = MartyController("wifi", "192.168.0.104")
+marty = MartyController("wifi", "192.168.0.3")
 marty.connect()
 if marty.marty is not None:
     marty.get_ready()
