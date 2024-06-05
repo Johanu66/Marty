@@ -5,31 +5,35 @@ from PyQt6.QtGui import QIcon, QPixmap
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QLabel, QGridLayout, QSlider
 from connection_to_marty import MartyController
 
-def create_custom_button(image, text):
-    button = QPushButton()
-    button.setFixedSize(QSize(150, 150))
-    button_layout = QVBoxLayout()
-    
-    button_icon = QLabel()
-    button_icon.setPixmap(QPixmap('./img/'+ image +'_btn.png'))
-    button_icon.setScaledContents(True)
-    
-    button_layout.addWidget(button_icon, alignment=Qt.AlignmentFlag.AlignCenter)
-    button_layout.addWidget(QLabel(text), alignment=Qt.AlignmentFlag.AlignCenter)
-    button.setLayout(button_layout)
+class Button(QPushButton):
+    def __init__(self, *args, **kwargs):
+        QPushButton.__init__(self, *args, **kwargs)
+        self.setAutoRepeat(True)
+        self.setAutoRepeatDelay(1000)
+        self.setAutoRepeatInterval(1000)
+        self.clicked.connect(self.handleClicked)
+        self._state = 0
+        self.type = ""
 
-    button.clicked.connect(lambda: handle_button_click(image))
-    
-    return button
+    def setType(self, type):
+        self.type = type
 
-def direction_button(image):
-    button = QPushButton()
-    button.setFixedSize(QSize(80, 80))
-    button.setIcon(QIcon('./img/'+ image +'_button.png'))
-    button.setIconSize(QSize(60,60))
-    button.clicked.connect(lambda: handle_button_click(image))
-
-    return button
+    def handleClicked(self):
+        if self.isDown():
+            if self._state == 0:
+                self._state = 1
+                self.setAutoRepeatInterval(marty.getSpeed())
+                # print("press")
+                handle_button_click(self.type)
+            else:
+                # print('repeat')
+                handle_button_click(self.type)
+        elif self._state == 1:
+            self._state = 0
+            self.setAutoRepeatInterval(marty.getSpeed())
+            # print('release')
+        else:
+            handle_button_click(self.type)
 
 def handle_button_click(type):
     match type:
@@ -66,6 +70,29 @@ def handle_button_click(type):
         case _:
             print('Unknown action')
 
+def create_custom_button(image, text):
+    button = QPushButton()
+    button.setFixedSize(QSize(150, 150))
+    button_layout = QVBoxLayout()
+    
+    button_icon = QLabel()
+    button_icon.setPixmap(QPixmap('./img/'+ image +'_btn.png'))
+    button_icon.setScaledContents(True)
+    
+    button_layout.addWidget(button_icon, alignment=Qt.AlignmentFlag.AlignCenter)
+    button_layout.addWidget(QLabel(text), alignment=Qt.AlignmentFlag.AlignCenter)
+    button.setLayout(button_layout)
+    button.clicked.connect(lambda: handle_button_click(image))
+    
+    return button
+
+def direction_button(image):
+    button = Button()
+    button.setFixedSize(QSize(80, 80))
+    button.setIcon(QIcon('./img/'+ image +'_button.png'))
+    button.setIconSize(QSize(60,60))
+    button.setType(image)
+    return button
 
 
 class MainWindow(QMainWindow):
@@ -73,6 +100,8 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.setWindowTitle("Marty's App")
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.setFocus()
 
         left_top_button = direction_button('left_top')
         top_button = direction_button('top')
@@ -128,7 +157,7 @@ class MainWindow(QMainWindow):
         self.slider = QSlider(Qt.Orientation.Horizontal, self)
         self.slider.setMinimum(1000)
         self.slider.setMaximum(3000)
-        self.slider.setValue(2500)
+        self.slider.setValue(2000)
         
         # Connect the slider value change to the function
         self.slider.valueChanged.connect(self.updateSpeed)
@@ -179,11 +208,26 @@ class MainWindow(QMainWindow):
         # self.label.setText(f'Speed: {value}')
         marty.setSpeed(4000-value)
 
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_Left or event.key() == Qt.Key.Key_4:
+            handle_button_click('left')
+        elif event.key() == Qt.Key.Key_Right or event.key() == Qt.Key.Key_6:
+            handle_button_click('right')
+        elif event.key() == Qt.Key.Key_Up or event.key() == Qt.Key.Key_8:
+            handle_button_click('top')
+        elif event.key() == Qt.Key.Key_Down or event.key() == Qt.Key.Key_2:
+            handle_button_click('down')
+        else:
+            print(f'Key {event.text()} is pressed')
+
+    # def keyReleaseEvent(self, event):
+    #     print('Key was released')
+
 app = QApplication(sys.argv)
 
 window = MainWindow()
 
-marty = MartyController("wifi", "192.168.0.104")
+marty = MartyController("wifi", "192.168.0.3")
 marty.connect()
 if marty.marty is not None:
     marty.get_ready()

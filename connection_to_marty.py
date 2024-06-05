@@ -80,6 +80,9 @@ class MartyController:
 
     def set_speed(self, new_speed):
         self.speed = new_speed
+
+    def getSpeed(self):
+        return self.speed
         
     def set_step_length(self, new_step_length):
         self.step_length = new_step_length
