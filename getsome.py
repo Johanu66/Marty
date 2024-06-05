@@ -56,59 +56,39 @@ class MartyController:
             except Exception as e:
                 print("An error occurred while getting the battery percentage: " + str(e))
                 
-    def get_video_flux(self):
-
-        if self.marty is not None:
-            try:
-                self.marty.start_camera()
-
-                while True:
-                    frame = self.marty.get_camera_frame()
-                    
-                    # Flip the frame horizontally (as Marty's camera is reversed)
-                    frame = cv2.flip(frame, 1)
-                    
-                    cv2.imshow('Marty Video', frame)
-
-                    if cv2.waitKey(1) & 0xFF == ord('q'):
-                        break
-
-                cv2.destroyAllWindows()
-            except Exception as e:
-                print("An error occurred while streaming video: " + str(e))
-        else:
-            print("Marty is not connected.")
+    
     def get_color_sensor(self):
 
         color =""
         ground= self.marty.foot_on_ground('RightIRFoot')
         if (ground):
-            color_right = self.marty.get_ground_sensor_reading('RightIRFoot') 
-            
-            if(color_right<=173 and color_right>=175) :
-                color = "red"
-                print(color)
+             
+           color_right = self.marty.get_color_sensor_hex('LEFT')
+           if(0x000000<=color_right<=0x1F1F1F):
+                color="Black"
+                return color
+               
+           if(0xFF0000<=color_right<=0xFFEFEF):
+                color="Red"
+                return color
+           
 
-            elif(color_right==177) :
-                color = "yellow"
-                print(color)        
-
-            elif( color_right==173) :
-                color = "blue"
-                print(color)                              
-
-            elif(color_right ==170 or color_right ==171):
-                color = "violet"
-                print(color)
-
-
-
-
-        
-            print(color_right , color) 
-            return color_right ,   
+           if(0xFFFF00<=color_right<=0xFFFFC0):
+                color="Yellow"
+                return color
+           
+           if(0x0000FF<=color_right<=0x7F7FFF):
+                color="Blue"
+                return color
+           
+           if(color_right==0x404051):
+                color="Skyblue"
+                return color
+               
+               
+                
         else :
-            print ("marty is on the ground")
+            print ("marty is not the ground")
             
             
     
@@ -133,4 +113,5 @@ if controller.marty is not None:
     
     
     controller.disconnect()
+
 
