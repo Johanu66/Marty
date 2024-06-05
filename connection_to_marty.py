@@ -8,8 +8,8 @@ class MartyController:
         self.ip_address = ip_address
         self.speed = 1500
         self.step_length = 25
-        self.turn_right_degree = 30
-        self.turn_left_degree = -30
+        self.turn_right_degree = -15
+        self.turn_left_degree = 15
         self.eyes_expression = "wiggle"
         self.song_celebration_file_name = "excited"
 
@@ -51,7 +51,6 @@ class MartyController:
     
     def turn_right(self):
         try:
-            self.forward()
             self.marty.walk(0, "auto",self.turn_right_degree, 25, self.speed)
             print("Marty turns right")
 
@@ -60,7 +59,6 @@ class MartyController:
             
     def turn_left(self):
         try:
-            self.forward()
             self.marty.walk(0, "auto",self.turn_left_degree, 25, self.speed)
             print("Marty turns left ")
 
@@ -91,7 +89,7 @@ class MartyController:
     def set_speed(self, new_speed):
         self.speed = new_speed
 
-    def getSpeed(self):
+    def get_speed(self):
         return self.speed
         
     def set_step_length(self, new_step_length):
@@ -108,10 +106,3 @@ class MartyController:
         
     def set_song_celebration_file_name(self, new_song_celebration_file_name):
         self.song_celebration_file_name = new_song_celebration_file_name
-
-controller = MartyController("wifi", "192.168.0.104")
-controller.connect()
-if controller.marty is not None:
-    controller.get_ready()
-    print(controller.marty.get_color_sensor_value_by_channel("left", "red"))
-    controller.disconnect()
