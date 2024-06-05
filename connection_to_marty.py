@@ -8,9 +8,9 @@ class MartyController:
         self.ip_address = ip_address
         self.speed = 1500
         self.step_length = 25
-        self.turn_right_degree = 50
-        self.turn_left_degree = -50
-        self.eyes_expression = "normal"
+        self.turn_right_degree = 30
+        self.turn_left_degree = -30
+        self.eyes_expression = "wiggle"
         self.song_celebration_file_name = "excited"
 
     def connect(self):
@@ -41,6 +41,14 @@ class MartyController:
         self.marty.walk(1, "auto", 0, -1 * self.step_length, self.speed)
         print("Marty moves backward")
     
+    def left_side_step(self) :
+        self.marty.sidestep("left", 1, self.step_length, self.speed)
+        print("Marty makes a left step")
+        
+    def right_side_step(self) :
+        self.marty.sidestep("right", 1, self.step_length, self.speed)
+        print("Marty makes a right step")
+    
     def turn_right(self):
         try:
             self.forward()
@@ -59,9 +67,9 @@ class MartyController:
         except Exception as e:
             print("An error occurred while connecting to Marty: " + str(e))
 
-    def gaze(self):
-        self.marty.eyes(self.eyes_expression, self.speed)
-        print("Marty ")
+    def wiggle_eyes(self):
+        self.marty.eyes(self.eyes_expression, self.speed*2)
+        print("Marty Wiggle")
 
     def dance(self):
         try :
@@ -72,8 +80,10 @@ class MartyController:
 
     def celebrate(self):
         try :
-            self.marty.play_sound(self.song_celebration_file_name)
-            self.marty.celebrate(self.speed*4)
+            self.marty.play_sound("no_way", 1000, 5000)
+            self.marty.celebrate(self.speed*2)
+            self.marty.circle_dance("right",1000)
+            self.marty.celebrate(self.speed*2)
             print("Marty is celebrating")
         except Exception as e:
             print("An error occurred while connecting to Marty: " + str(e))
@@ -99,17 +109,9 @@ class MartyController:
     def set_song_celebration_file_name(self, new_song_celebration_file_name):
         self.song_celebration_file_name = new_song_celebration_file_name
 
-controller = MartyController("wifi", "192.168.0.4")
+controller = MartyController("wifi", "192.168.0.104")
 controller.connect()
 if controller.marty is not None:
     controller.get_ready()
-    controller.forward()
-    controller.turn_left()
-    # controller.gaze()
-    # controller.get_ready()
-    # controller.dance()
-    # controller.forward()
-    # controller.celebrate()
-    # controller.backward()
-    # controller.get_ready()
+    print(controller.marty.get_color_sensor_value_by_channel("left", "red"))
     controller.disconnect()
