@@ -101,17 +101,3 @@ class MartyController:
         
 
 
-controller = MartyController("wifi", "192.168.0.4")
-controller.connect()
-#controller.marty.walk(5)  
-if controller.marty is not None:
-    
-    #controller.marty.dance()
-
-    controller.get_battery_percentage()
-    controller.get_color_sensor()
-    
-    
-    controller.disconnect()
-
-
