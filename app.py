@@ -22,39 +22,39 @@ class Button(QPushButton):
         if self.isDown():
             if self._state == 0:
                 self._state = 1
-                self.setAutoRepeatInterval(marty.getSpeed())
-                # print("press")
+                # float to int
+                self.setAutoRepeatInterval(int(marty.get_speed() + marty.get_speed()*1/4))
                 handle_button_click(self.type)
             else:
-                # print('repeat')
                 handle_button_click(self.type)
         elif self._state == 1:
             self._state = 0
-            self.setAutoRepeatInterval(marty.getSpeed())
-            # print('release')
+            self.setAutoRepeatInterval(int(marty.get_speed() + marty.get_speed()*1/4))
         else:
             handle_button_click(self.type)
 
 def handle_button_click(type):
+    window.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+    window.setFocus()
     match type:
         case 'left_top':
-            marty.left_top()
+            marty.turn_left()
         case 'top':
             marty.forward()
         case 'right_top':
-            marty.right_top()
+            marty.turn_right()
         case 'left':
-            marty.left()
+            marty.left_side_step()
         case 'center':
             marty.center()
         case 'right':
-            marty.right()
+            marty.right_side_step()
         case 'down':
             marty.backward()
         case 'get_ready':
             marty.get_ready()
         case 'show_off':
-            marty.show_off()
+            marty.celebrate()
         case 'wave_left':
             marty.wave_left()
         case 'wave_right':
@@ -205,8 +205,10 @@ class MainWindow(QMainWindow):
         "}")
 
     def updateSpeed(self, value):
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.setFocus()
         # self.label.setText(f'Speed: {value}')
-        marty.setSpeed(4000-value)
+        marty.set_speed(4000-value)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Left or event.key() == Qt.Key.Key_4:
@@ -217,6 +219,20 @@ class MainWindow(QMainWindow):
             handle_button_click('top')
         elif event.key() == Qt.Key.Key_Down or event.key() == Qt.Key.Key_2:
             handle_button_click('down')
+        elif event.key() == Qt.Key.Key_5:
+            handle_button_click('center')
+        elif event.key() == Qt.Key.Key_7:
+            handle_button_click('left_top')
+        elif event.key() == Qt.Key.Key_9:
+            handle_button_click('right_top')
+        elif event.key() == Qt.Key.Key_Space:
+            handle_button_click('get_ready')
+        elif event.key() == Qt.Key.Key_C:
+            handle_button_click('show_off')
+        elif event.key() == Qt.Key.Key_W:
+            handle_button_click('wiggle_eyes')
+        elif event.key() == Qt.Key.Key_D:
+            handle_button_click('dance')
         else:
             print(f'Key {event.text()} is pressed')
 
@@ -227,7 +243,7 @@ app = QApplication(sys.argv)
 
 window = MainWindow()
 
-marty = MartyController("wifi", "192.168.0.3")
+marty = MartyController("wifi", "192.168.0.109")
 marty.connect()
 if marty.marty is not None:
     marty.get_ready()
