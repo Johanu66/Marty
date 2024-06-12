@@ -20,6 +20,15 @@ class MartyController:
         self.twist_left_kick = 0
         self.lift_right_arm_angle = 100
         self.lift_left_arm_angle = 100
+
+        self.route_codes = {"light_blue": "begin", "dark_blue": "right", "pink": "left", "green": "forward", "yellow": "backward", "red": "end"}
+
+        self.routes = list([{"origin": "light_blue", "distance": 5, "destination": "pink"},
+                            {"origin": "pink", "distance": 8, "destination": "green"},
+                            {"origin": "green", "distance": 4, "destination": "yellow"},
+                            {"origin": "yellow", "distance": 6, "destination": "dark_blue"},
+                            {"origin": "dark_blue", "distance": 10, "destination": "red"},
+                            {"origin": "red", "distance": 2, "destination": None}])
     
     # les methodes
     def connect(self):
@@ -88,20 +97,20 @@ class MartyController:
     def get_ready(self):
         self.marty.get_ready()
     
-    def forward(self):
-        self.marty.walk(1, "auto", 0, self.step_length, self.speed)
+    def forward(self, distance=1):
+        self.marty.walk(distance, "auto", 0, self.step_length, self.speed)
         print("Marty moves forward")
         
-    def backward(self):
-        self.marty.walk(1, "auto", 0, -1 * self.step_length, self.speed)
+    def backward(self, distance=1):
+        self.marty.walk(distance, "auto", 0, -1 * self.step_length, self.speed)
         print("Marty moves backward")
     
-    def left_side_step(self) :
-        self.marty.sidestep("left", 1, self.step_length, self.speed)
+    def left_side_step(self, distance=1):
+        self.marty.sidestep("left", distance, self.step_length, self.speed)
         print("Marty makes a left step")
         
-    def right_side_step(self) :
-        self.marty.sidestep("right", 1, self.step_length, self.speed)
+    def right_side_step(self, distance=1) :
+        self.marty.sidestep("right", distance, self.step_length, self.speed)
         print("Marty makes a right step")
     
     def turn_right(self):
@@ -163,6 +172,26 @@ class MartyController:
         self.marty.arms(0, self.lift_right_arm_angle, self.speed/3)
         self.marty.arms(0, 0*self.lift_right_arm_angle, self.speed/3)
         print("Marty lifts right arm")
+
+
+    def auto_guide(self):
+        for route in self.routes:
+            if self.route_codes[route["origin"]] == "begin":
+                self.get_ready()
+                self.forward(route["distance"])
+            if route["destination"] is not None:
+                if self.route_codes[route["origin"]] == "forward":
+                    self.forward(route["distance"])
+                elif self.route_codes[route["origin"]] == "backward":
+                    self.backward(route["distance"])
+                elif self.route_codes[route["origin"]] == "left":
+                    self.left_side_step(route["distance"])
+                elif self.route_codes[route["origin"]] == "right":
+                    self.right_side_step(route["distance"])
+                elif self.route_codes[route["origin"]] == "end":
+                    self.celebrate()
+            else:
+                self.celebrate()
     
     # les getters
 
@@ -227,7 +256,4 @@ class MartyController:
         
     def set_lift_left_arm_angle(self, new_lift_left_arm):
         self.lift_left_arm_angle = new_lift_left_arm
-        
-        
-        
 
