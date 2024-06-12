@@ -1,4 +1,5 @@
 
+from collections import Counter
 from martypy import Marty
 
 
@@ -21,14 +22,28 @@ class MartyController:
         self.lift_right_arm_angle = 100
         self.lift_left_arm_angle = 100
 
+        self.grille_size = 3
+
+        self.grille = [["black" for _ in range(self.grille_size)] for _ in range(self.grille_size)]
+
         self.route_codes = {"light_blue": "begin", "dark_blue": "right", "pink": "left", "green": "forward", "yellow": "backward", "red": "end"}
 
-        self.routes = list([{"origin": "light_blue", "distance": 5, "destination": "pink"},
-                            {"origin": "pink", "distance": 8, "destination": "green"},
-                            {"origin": "green", "distance": 4, "destination": "yellow"},
-                            {"origin": "yellow", "distance": 6, "destination": "dark_blue"},
-                            {"origin": "dark_blue", "distance": 10, "destination": "red"},
-                            {"origin": "red", "distance": 2, "destination": None}])
+        distance = 7
+
+        self.routes = list([{"origin": "light_blue", "distance": distance},
+                            {"origin": "pink", "distance": distance},
+                            {"origin": "green", "distance": distance},
+                            {"origin": "yellow", "distance": distance},
+                            {"origin": "dark_blue", "distance": distance},
+                            {"origin": "red", "distance": 0}])
+        
+        self.red_values = (74, 87)
+        self.pink_values = (91, 101)
+        self.yellow_values = (180, 190)
+        self.green_values = (25, 35)
+        self.light_blue_values = (52, 56)
+        self.dark_blue_values = (18, 22)
+        self.black_values = (12, 16)
     
     # les methodes
     def connect(self):
@@ -63,6 +78,9 @@ class MartyController:
                 return self.marty.get_obstacle_sensor_reading("Left")
             except Exception as e:
                 print("An error occurred while getting the sensor distance: " + str(e))
+
+    def get_color_number(self):
+        return self.marty.get_ground_sensor_reading("Left")
                 
     def get_color_sensor(self):
         color = ""
@@ -72,25 +90,26 @@ class MartyController:
                 if ground:
                     left_color = self.marty.get_ground_sensor_reading("Left")
                     print(f"Value of the left color sensor: {left_color}")
-                    if 70 <= left_color <= 74:
-                        color = "Red"
-                    elif 42 <= left_color <= 46:
-                        color = "Light Blue"
-                    elif 26 <= left_color <= 30:
-                        color = "Green"
-                    elif 160 <= left_color <= 164:
-                        color = "Yellow"
-                    elif 83 <= left_color <= 87:
-                        color = "Pink"
-                    elif 18 <= left_color <= 22:
-                        color = "Dark Blue"
-                    elif 12 <= left_color <= 16:
-                        color = "Black"
+                    if self.red_values[0] <= left_color <= self.red_values[1]:
+                        color = "red"
+                    elif self.light_blue_values[0] <= left_color <= self.light_blue_values[1]:
+                        color = "light_blue"
+                    elif self.green_values[0] <= left_color <= self.green_values[1]:
+                        color = "green"
+                    elif self.yellow_values[0] <= left_color <= self.yellow_values[1]:
+                        color = "yellow"
+                    elif self.pink_values[0] <= left_color <= self.pink_values[1]:
+                        color = "pink"
+                    elif self.dark_blue_values[0] <= left_color <= self.dark_blue_values[1]:
+                        color = "dark_blue"
+                    elif self.black_values[0] <= left_color <= self.black_values[1]:
+                        color = "black"
                     else:
-                        color = "Unrecognized"
-                    return color
+                        color = "unrecognized"
                 else:
                     print("Marty's foot is not on the ground.")
+                    color = "black"
+                return color
             except Exception as e:
                 print("An error occurred while getting the color sensor reading: " + str(e))
 
@@ -179,7 +198,7 @@ class MartyController:
             if self.route_codes[route["origin"]] == "begin":
                 self.get_ready()
                 self.forward(route["distance"])
-            if route["destination"] is not None:
+            if route["distance"] != 0:
                 if self.route_codes[route["origin"]] == "forward":
                     self.forward(route["distance"])
                 elif self.route_codes[route["origin"]] == "backward":
@@ -192,6 +211,79 @@ class MartyController:
                     self.celebrate()
             else:
                 self.celebrate()
+    
+    def top_occurrences(self, lst):
+        # Comptage des occurrences de chaque élément dans la liste
+        counts = Counter(lst)
+        # Obtenir les trois éléments les plus fréquents
+        most_common_three = counts.most_common(self.grille_size)
+        # Créer une liste des éléments les plus fréquents sans les compteurs
+        most_common_elements = [item[0] for item in most_common_three]
+        # Réordonner les éléments en conservant leur ordre d'apparition original dans la liste
+        top_three = []
+        for item in lst:
+            if item in most_common_elements and item not in top_three:
+                top_three.append(item)
+        return [item for item in top_three]
+
+    def reconnaissance(self):
+        forward_or_backward_steps = 13
+        right_steps = 7
+        colors = list()
+        for _ in range(forward_or_backward_steps):
+            colors.append(self.get_color_sensor())
+            self.forward()
+            colors.append(self.get_color_sensor())
+        print(colors)
+        colors = [x for x in colors if x != "unrecognized"]
+        print(colors)
+        top_colors = self.top_occurrences(colors)
+        print(top_colors)
+        for i in range(self.grille_size):
+            if self.grille[0][i] == "black":
+                self.grille[0][i] = top_colors[i]
+        for _ in range(right_steps):
+            self.right_side_step()
+        print(colors)
+
+        colors = list()
+        for _ in range(forward_or_backward_steps):
+            colors.append(self.get_color_sensor())
+            self.backward()
+            colors.append(self.get_color_sensor())
+        colors = [x for x in colors if x != "unrecognized"]
+        top_colors = self.top_occurrences(colors)
+        top_colors.reverse()
+        print(top_colors)
+        for i in range(self.grille_size):
+            if self.grille[0][i] == "black":
+                self.grille[1][i] = top_colors[i]
+        for _ in range(right_steps):
+            self.right_side_step()
+        print(colors)
+
+        colors = list()
+        for _ in range(forward_or_backward_steps):
+            colors.append(self.get_color_sensor())
+            self.forward()
+            colors.append(self.get_color_sensor())
+        colors = [x for x in colors if x != "unrecognized"]
+        top_colors = self.top_occurrences(colors)
+        print(top_colors)
+        for i in range(self.grille_size):
+            if self.grille[0][i] == "black":
+                self.grille[2][i] = top_colors[i]
+        print(colors)
+
+        print(self.grille)
+
+    def auto_marty1(self):
+        self.reconnaissance()
+
+
+    def auto_marty2(self):
+        self.reconnaissance()
+
     
     # les getters
 
@@ -256,4 +348,32 @@ class MartyController:
         
     def set_lift_left_arm_angle(self, new_lift_left_arm):
         self.lift_left_arm_angle = new_lift_left_arm
+
+    def set_red_values(self, value):
+        self.red_values = value
+        print(value)
+
+    def set_pink_values(self, value):
+        self.pink_values = value
+        print(value)
+
+    def set_yellow_values(self, value):
+        self.yellow_values = value
+        print(value)
+
+    def set_green_values(self, value):
+        self.green_values = value
+        print(value)
+
+    def set_light_blue_values(self, value):
+        self.light_blue_values = value
+        print(value)
+
+    def set_dark_blue_values(self, value):
+        self.dark_blue_values = value
+        print(value)
+
+    def set_black_values(self, value):
+        self.black_values = value
+        print(value)
 

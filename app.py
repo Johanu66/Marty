@@ -36,6 +36,7 @@ class Button(QPushButton):
 def handle_button_click(type):
     window.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
     window.setFocus()
+    intervalle = 3
     match type:
         case 'left_top':
             marty.turn_left()
@@ -45,8 +46,6 @@ def handle_button_click(type):
             marty.turn_right()
         case 'left':
             marty.left_side_step()
-        case 'center':
-            marty.auto_guide()
         case 'right':
             marty.right_side_step()
         case 'down':
@@ -67,6 +66,35 @@ def handle_button_click(type):
             marty.left_kick()
         case 'kick_right':
             marty.right_kick()
+        case 'connect':
+            if marty.marty is None:
+                marty.connect()
+                marty.get_ready()
+        case 'down_left':
+            marty.auto_marty1()
+        case 'down_right':
+            marty.auto_marty2()
+        case 'red':
+            color = marty.get_color_number()
+            marty.set_red_values((color-intervalle, color+intervalle))
+        case 'pink':
+            color = marty.get_color_number()
+            marty.set_pink_values((color-intervalle, color+intervalle))
+        case 'yellow':
+            color = marty.get_color_number()
+            marty.set_yellow_values((color-intervalle, color+intervalle))
+        case 'green':
+            color = marty.get_color_number()
+            marty.set_green_values((color-intervalle, color+intervalle))
+        case 'light_blue':
+            color = marty.get_color_number()
+            marty.set_light_blue_values((color-intervalle, color+intervalle))
+        case 'dark_blue':
+            color = marty.get_color_number()
+            marty.set_dark_blue_values((color-intervalle, color+intervalle))
+        case 'black':
+            color = marty.get_color_number()
+            marty.set_black_values((color-intervalle, color+intervalle))
         case _:
             print('Unknown action')
 
@@ -94,6 +122,14 @@ def direction_button(image):
     button.setType(image)
     return button
 
+def color_button(type, color):
+    button = Button()
+    button.setStyleSheet("QPushButton { background-color: "+ color +" }")
+    button.setFixedSize(QSize(40, 40))
+    # button.setIcon(QIcon('./img/'+ image +'_button.png'))
+    # button.setIconSize(QSize(60,60))
+    button.setType(type)
+    return button
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -103,13 +139,24 @@ class MainWindow(QMainWindow):
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.setFocus()
 
+        # black, red, pink, yellow, green, light_blue and dark_blue button
+        red_button = color_button("red", "red")
+        pink_button = color_button("pink", "pink")
+        yellow_button = color_button("yellow", "yellow")
+        green_button = color_button("green", "green")
+        black_button = color_button("black", "black")
+        light_blue_button = color_button("light_blue", "#87CEEB")
+        dark_blue_button = color_button("dark_blue", "#00008B")
+
         left_top_button = direction_button('left_top')
         top_button = direction_button('top')
         right_top_button = direction_button('right_top')
         left_button = direction_button('left')
-        center_button = direction_button('center')
+        connect_button = direction_button('connect')
         right_button = direction_button('right')
         down_button = direction_button('down')
+        down_left_button = direction_button('down_left')
+        down_right_button = direction_button('down_right')
 
         get_ready_btn = create_custom_button('get_ready', 'Get Ready')
         show_off_btn = create_custom_button('show_off', 'Show Off')
@@ -132,9 +179,19 @@ class MainWindow(QMainWindow):
         left_layout.addWidget(top_button, 0, 1)
         left_layout.addWidget(right_top_button, 0, 2)
         left_layout.addWidget(left_button, 1, 0)
-        left_layout.addWidget(center_button, 1, 1)
+        left_layout.addWidget(connect_button, 1, 1)
         left_layout.addWidget(right_button, 1, 2)
+        left_layout.addWidget(down_left_button, 2, 0)
         left_layout.addWidget(down_button, 2, 1)
+        left_layout.addWidget(down_right_button, 2, 2)
+
+        left_layout.addWidget(red_button, 3, 0)
+        left_layout.addWidget(pink_button, 3, 1)
+        left_layout.addWidget(yellow_button, 3, 2)
+        left_layout.addWidget(green_button, 4, 0)
+        left_layout.addWidget(light_blue_button, 4, 1)
+        left_layout.addWidget(dark_blue_button, 4, 2)
+        left_layout.addWidget(black_button, 5, 1)
 
         actions_btn_layout = QGridLayout()
         actions_btn_container = QWidget()
@@ -243,10 +300,10 @@ app = QApplication(sys.argv)
 
 window = MainWindow()
 
-marty = MartyController("wifi", "192.168.0.105")
-marty.connect()
-if marty.marty is not None:
-    marty.get_ready()
+marty = MartyController("wifi", "192.168.0.6")
+# marty.connect()
+# if marty.marty is not None:
+#     marty.get_ready()
 
 window.show()
 
