@@ -6,6 +6,8 @@ Created on Wed May 15 10:36:49 2024
 """
 
 from martypy import Marty
+
+
 import cv2
 
 class MartyController:
@@ -58,38 +60,46 @@ class MartyController:
                 
     
     def get_color_sensor(self):
-
-        color =""
-        ground= self.marty.foot_on_ground('RightIRFoot')
-        if (ground):
-             
-           color_right = self.marty.get_color_sensor_hex('LEFT')
-           if(0x000000<=color_right<=0x1F1F1F):
-                color="Black"
-                return color
-               
-           if(0xFF0000<=color_right<=0xFFEFEF):
-                color="Red"
-                return color
+      color = ""
+      ground = self.marty.foot_on_ground('RightIRFoot')
+      if ground:
+          
+            left_color = self.marty.get_ground_sensor_reading("Left")
+            print(f"Value of the left color sensor: {left_color}")
+            if 70 <= left_color <= 74:
+                color = "Red"
+            elif 42 <= left_color <= 46:
+                color = "Light Blue"
+            elif 26 <= left_color <= 30:
+                color = "Green"
+            elif 160 <= left_color <= 164:
+                color = "Yellow"
+                  
+            elif 83 <= left_color <= 87:
+                color = "Pink"
+            elif 18 <= left_color <= 22:
+                color = "Dark Blue"
+            elif 12 <= left_color <= 16:
+                color = "Black"
+                  
+            else:
+                color = "Unrecognized"
+            return color
+        
+      else:
+          print("Marty's foot is not on the ground.")
            
-
-           if(0xFFFF00<=color_right<=0xFFFFC0):
-                color="Yellow"
-                return color
-           
-           if(0x0000FF<=color_right<=0x7F7FFF):
-                color="Blue"
-                return color
-           
-           if(color_right==0x404051):
-                color="Skyblue"
-                return color
                
-               
-                
-        else :
-            print ("marty is not the ground")
-            
+       
+if __name__ == "__main__":
+    controller = MartyController("wifi", "192.168.0.105")
+    controller.connect()
+    # 
+    if controller.marty is not None:
+        controller.marty.walk(5)
+        print(controller.get_color_sensor())
+        
+           
             
     
             
@@ -99,5 +109,8 @@ class MartyController:
         
 
         
+
+
+
 
 
