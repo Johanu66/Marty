@@ -7,6 +7,9 @@ Created on Wed May 15 10:36:49 2024
 
 from martypy import Marty
 
+
+import cv2
+
 class MartyController:
     def __init__(self, connection_type, ip_address):
         self.marty = None
@@ -30,24 +33,48 @@ class MartyController:
         else:
             print("Marty is not connected.")
             
+    def get_battery_percentage(self):
+        if self.marty is not None:
+            try:
+                print ("battery percentage is :",self.marty.get_battery_remaining())
+                return self.marty.get_battery_remaining()
+            except Exception as e:
+                print("An error occurred while getting the battery percentage: " + str(e))
+    
+    def get_sensor_distace(self):
+        if self.marty is not None:
+            try:
+                print(self.marty.get_obstacle_sensor_reading("Left"))
+                return self.marty.get_obstacle_sensor_reading("Left")
+            except Exception as e:
+                print("An error occurred while getting the sensor distance: " + str(e))
+                
     def get_color_sensor(self):
-
-        color =""
-        try(
-        ground= self.marty.foot_on_ground('RightIRFoot')
-        if (ground):
-             
-           color_right = self.marty.get_color_sensor_hex('LEFT')
-           
-           
-            
-
-controller = MartyController("wifi", "192.168.0.109")
-controller.connect()
-#controller.marty.walk(5)  
-if controller.marty is not None:
-    controller.marty.walk(5)
-    print(controller.get_color_sensor())
-
-    #controller.marty.dance()
-#controller.disconnect()
+        color = ""
+        if self.marty is not None:
+            try:
+                ground = self.marty.foot_on_ground('RightIRFoot')
+                if ground:
+                    left_color = self.marty.get_ground_sensor_reading("Left")
+                    print(f"Value of the left color sensor: {left_color}")
+                    if 70 <= left_color <= 74:
+                        color = "Red"
+                    elif 42 <= left_color <= 46:
+                        color = "Light Blue"
+                    elif 26 <= left_color <= 30:
+                        color = "Green"
+                    elif 160 <= left_color <= 164:
+                        color = "Yellow"
+                    elif 83 <= left_color <= 87:
+                        color = "Pink"
+                    elif 18 <= left_color <= 22:
+                        color = "Dark Blue"
+                    elif 12 <= left_color <= 16:
+                        color = "Black"
+                    else:
+                        color = "Unrecognized"
+                    return color
+                else:
+                    print("Marty's foot is not on the ground.")
+            except Exception as e:
+                print("An error occurred while getting the color sensor reading: " + str(e))
