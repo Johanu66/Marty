@@ -46,7 +46,7 @@ def handle_button_click(type):
         case 'left':
             marty.left_side_step()
         case 'center':
-            marty.center()
+            marty.auto_guide()
         case 'right':
             marty.right_side_step()
         case 'down':
@@ -56,17 +56,17 @@ def handle_button_click(type):
         case 'show_off':
             marty.celebrate()
         case 'wave_left':
-            marty.wave_left()
+            marty.lift_left_arm()
         case 'wave_right':
-            marty.wave_right()
+            marty.lift_right_arm()
         case 'dance':
             marty.dance()
         case 'wiggle_eyes':
             marty.wiggle_eyes()
         case 'kick_left':
-            marty.kick_left()
+            marty.left_kick()
         case 'kick_right':
-            marty.kick_right()
+            marty.right_kick()
         case _:
             print('Unknown action')
 
@@ -243,7 +243,7 @@ app = QApplication(sys.argv)
 
 window = MainWindow()
 
-marty = MartyController("wifi", "192.168.0.109")
+marty = MartyController("wifi", "192.168.0.105")
 marty.connect()
 if marty.marty is not None:
     marty.get_ready()
