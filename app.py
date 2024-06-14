@@ -3,7 +3,10 @@ from martypy import Marty
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtGui import QIcon, QPixmap
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QLabel, QGridLayout, QSlider
+from ColorCalibrator import ColorCalibrator
 from connection_to_marty import MartyController
+
+main_marty_calib = True
 
 class Button(QPushButton):
     def __init__(self, *args, **kwargs):
@@ -34,6 +37,7 @@ class Button(QPushButton):
             handle_button_click(self.type)
 
 def handle_button_click(type):
+    global main_marty_calib
     window.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
     window.setFocus()
     intervalle = 3
@@ -67,34 +71,83 @@ def handle_button_click(type):
         case 'kick_right':
             marty.right_kick()
         case 'connect':
-            if marty.marty is None:
-                marty.connect()
-                marty.get_ready()
+            if main_marty_calib:
+                if marty.marty is None:
+                    marty.connect()
+                    if marty.marty is not None:
+                        marty.get_ready()
+            else:
+                if marty2.marty is None:
+                    marty2.connect()
+                    if marty2.marty is not None:
+                        marty2.get_ready()
         case 'down_left':
-            marty.auto_marty1()
+            marty.reconnaissance()
+            marty2.reconnaissance()
         case 'down_right':
-            marty.auto_marty2()
+            marty.auto_guide()
+        case 'marty1_calib':
+            main_marty_calib = True
+            print("Current marty is Marty1")
+        case 'marty2_calib':
+            main_marty_calib = False
+            print("Current marty is Marty2")
         case 'red':
-            color = marty.get_color_number()
-            marty.set_red_values((color-intervalle, color+intervalle))
+            # color = marty.get_color_number()
+            # marty.set_red_values((color-intervalle, color+intervalle))
+            if main_marty_calib:
+                color = marty.marty.get_color_sensor_hex('left')
+            else:
+                color = marty2.marty.get_color_sensor_hex('left')
+            ColorCalibrator.calibrate_color(1, 'red', color)
         case 'pink':
-            color = marty.get_color_number()
-            marty.set_pink_values((color-intervalle, color+intervalle))
+            # color = marty.get_color_number()
+            # marty.set_pink_values((color-intervalle, color+intervalle))
+            if main_marty_calib:
+                color = marty.marty.get_color_sensor_hex('left')
+            else:
+                color = marty2.marty.get_color_sensor_hex('left')
+            ColorCalibrator.calibrate_color(1, 'pink', color)
         case 'yellow':
-            color = marty.get_color_number()
-            marty.set_yellow_values((color-intervalle, color+intervalle))
+            # color = marty.get_color_number()
+            # marty.set_yellow_values((color-intervalle, color+intervalle))
+            if main_marty_calib:
+                color = marty.marty.get_color_sensor_hex('left')
+            else:
+                color = marty2.marty.get_color_sensor_hex('left')
+            ColorCalibrator.calibrate_color(1, 'yellow', color)
         case 'green':
-            color = marty.get_color_number()
-            marty.set_green_values((color-intervalle, color+intervalle))
+            # color = marty.get_color_number()
+            # marty.set_green_values((color-intervalle, color+intervalle))
+            if main_marty_calib:
+                color = marty.marty.get_color_sensor_hex('left')
+            else:
+                color = marty2.marty.get_color_sensor_hex('left')
+            ColorCalibrator.calibrate_color(1, 'green', color)
         case 'light_blue':
-            color = marty.get_color_number()
-            marty.set_light_blue_values((color-intervalle, color+intervalle))
+            # color = marty.get_color_number()
+            # marty.set_light_blue_values((color-intervalle, color+intervalle))
+            if main_marty_calib:
+                color = marty.marty.get_color_sensor_hex('left')
+            else:
+                color = marty2.marty.get_color_sensor_hex('left')
+            ColorCalibrator.calibrate_color(1, 'light_blue', color)
         case 'dark_blue':
-            color = marty.get_color_number()
-            marty.set_dark_blue_values((color-intervalle, color+intervalle))
+            # color = marty.get_color_number()
+            # marty.set_dark_blue_values((color-intervalle, color+intervalle))
+            if main_marty_calib:
+                color = marty.marty.get_color_sensor_hex('left')
+            else:
+                color = marty2.marty.get_color_sensor_hex('left')
+            ColorCalibrator.calibrate_color(1, 'dark_blue', color)
         case 'black':
-            color = marty.get_color_number()
-            marty.set_black_values((color-intervalle, color+intervalle))
+            # color = marty.get_color_number()
+            # marty.set_black_values((color-intervalle, color+intervalle))
+            if main_marty_calib:
+                color = marty.marty.get_color_sensor_hex('left')
+            else:
+                color = marty2.marty.get_color_sensor_hex('left')
+            ColorCalibrator.calibrate_color(1, 'black', color)
         case _:
             print('Unknown action')
 
@@ -114,17 +167,17 @@ def create_custom_button(image, text):
     
     return button
 
-def direction_button(image):
-    button = Button()
+def direction_button(image, text=""):
+    button = Button(text)
     button.setFixedSize(QSize(80, 80))
     button.setIcon(QIcon('./img/'+ image +'_button.png'))
     button.setIconSize(QSize(60,60))
     button.setType(image)
     return button
 
-def color_button(type, color):
-    button = Button()
-    button.setStyleSheet("QPushButton { background-color: "+ color +" }")
+def color_button(type, color, text=""):
+    button = Button(text)
+    button.setStyleSheet("QPushButton { background-color: "+ color +"; text-align: center; }")
     button.setFixedSize(QSize(40, 40))
     # button.setIcon(QIcon('./img/'+ image +'_button.png'))
     # button.setIconSize(QSize(60,60))
@@ -148,6 +201,9 @@ class MainWindow(QMainWindow):
         light_blue_button = color_button("light_blue", "#87CEEB")
         dark_blue_button = color_button("dark_blue", "#00008B")
 
+        marty1_calib_button = color_button("marty1_calib", "#3EC8ED", "M1")
+        marty2_calib_button = color_button("marty2_calib", "#3EC8ED", "M2")
+
         left_top_button = direction_button('left_top')
         top_button = direction_button('top')
         right_top_button = direction_button('right_top')
@@ -155,8 +211,8 @@ class MainWindow(QMainWindow):
         connect_button = direction_button('connect')
         right_button = direction_button('right')
         down_button = direction_button('down')
-        down_left_button = direction_button('down_left')
-        down_right_button = direction_button('down_right')
+        down_left_button = direction_button('down_left', "Reconnais")
+        down_right_button = direction_button('down_right', "Auto guid")
 
         get_ready_btn = create_custom_button('get_ready', 'Get Ready')
         show_off_btn = create_custom_button('show_off', 'Show Off')
@@ -185,13 +241,15 @@ class MainWindow(QMainWindow):
         left_layout.addWidget(down_button, 2, 1)
         left_layout.addWidget(down_right_button, 2, 2)
 
-        left_layout.addWidget(red_button, 3, 0)
-        left_layout.addWidget(pink_button, 3, 1)
-        left_layout.addWidget(yellow_button, 3, 2)
-        left_layout.addWidget(green_button, 4, 0)
-        left_layout.addWidget(light_blue_button, 4, 1)
-        left_layout.addWidget(dark_blue_button, 4, 2)
-        left_layout.addWidget(black_button, 5, 1)
+        left_layout.addWidget(red_button, 3, 0, alignment=Qt.AlignmentFlag.AlignCenter)
+        left_layout.addWidget(pink_button, 3, 1, alignment=Qt.AlignmentFlag.AlignCenter)
+        left_layout.addWidget(yellow_button, 3, 2, alignment=Qt.AlignmentFlag.AlignCenter)
+        left_layout.addWidget(green_button, 4, 0, alignment=Qt.AlignmentFlag.AlignCenter)
+        left_layout.addWidget(light_blue_button, 4, 1, alignment=Qt.AlignmentFlag.AlignCenter)
+        left_layout.addWidget(dark_blue_button, 4, 2, alignment=Qt.AlignmentFlag.AlignCenter)
+        left_layout.addWidget(black_button, 5, 1, alignment=Qt.AlignmentFlag.AlignCenter)
+        left_layout.addWidget(marty1_calib_button, 5, 0, alignment=Qt.AlignmentFlag.AlignCenter)
+        left_layout.addWidget(marty2_calib_button, 5, 2, alignment=Qt.AlignmentFlag.AlignCenter)
 
         actions_btn_layout = QGridLayout()
         actions_btn_container = QWidget()
@@ -300,10 +358,8 @@ app = QApplication(sys.argv)
 
 window = MainWindow()
 
-marty = MartyController("wifi", "192.168.0.6")
-# marty.connect()
-# if marty.marty is not None:
-#     marty.get_ready()
+marty = MartyController("wifi", "192.168.0.5")
+marty2 = MartyController("wifi", "192.168.0.8")
 
 window.show()
 

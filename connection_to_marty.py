@@ -5,6 +5,10 @@ from martypy import Marty
 
 import cv2
 
+from ColorCalibrator import ColorCalibrator
+from GenerateRoute import GenerateRoute
+from GridManager import GridManager
+
 class MartyController:
     def __init__(self, connection_type, ip_address):
         # les variables
@@ -86,29 +90,45 @@ class MartyController:
         color = ""
         if self.marty is not None:
             try:
-                ground = self.marty.foot_on_ground('RightIRFoot')
-                if ground:
-                    left_color = self.marty.get_ground_sensor_reading("Left")
-                    print(f"Value of the left color sensor: {left_color}")
-                    if self.red_values[0] <= left_color <= self.red_values[1]:
-                        color = "red"
-                    elif self.light_blue_values[0] <= left_color <= self.light_blue_values[1]:
-                        color = "light_blue"
-                    elif self.green_values[0] <= left_color <= self.green_values[1]:
-                        color = "green"
-                    elif self.yellow_values[0] <= left_color <= self.yellow_values[1]:
-                        color = "yellow"
-                    elif self.pink_values[0] <= left_color <= self.pink_values[1]:
-                        color = "pink"
-                    elif self.dark_blue_values[0] <= left_color <= self.dark_blue_values[1]:
-                        color = "dark_blue"
-                    elif self.black_values[0] <= left_color <= self.black_values[1]:
-                        color = "black"
-                    else:
-                        color = "unrecognized"
-                else:
-                    print("Marty's foot is not on the ground.")
+                # ground = self.marty.foot_on_ground('RightIRFoot')
+                # if ground:
+                # left_color = self.marty.get_ground_sensor_reading("Left")
+                left_color = self.marty.get_color_sensor_hex("left")
+                print(f"Value of the left color sensor: {left_color}")
+                # if self.red_values[0] <= left_color <= self.red_values[1]:
+                #     color = "red"
+                # elif self.light_blue_values[0] <= left_color <= self.light_blue_values[1]:
+                #     color = "light_blue"
+                # elif self.green_values[0] <= left_color <= self.green_values[1]:
+                #     color = "green"
+                # elif self.yellow_values[0] <= left_color <= self.yellow_values[1]:
+                #     color = "yellow"
+                # elif self.pink_values[0] <= left_color <= self.pink_values[1]:
+                #     color = "pink"
+                # elif self.dark_blue_values[0] <= left_color <= self.dark_blue_values[1]:
+                #     color = "dark_blue"
+                # elif self.black_values[0] <= left_color <= self.black_values[1]:
+                #     color = "black"
+
+                if ColorCalibrator.detect_color(1, left_color) == "red":
+                    color = "red"
+                elif ColorCalibrator.detect_color(1, left_color) == "light_blue":
+                    color = "light_blue"
+                elif ColorCalibrator.detect_color(1, left_color) == "green":
+                    color = "green"
+                elif ColorCalibrator.detect_color(1, left_color) == "yellow":
+                    color = "yellow"
+                elif ColorCalibrator.detect_color(1, left_color) == "pink":
+                    color = "pink"
+                elif ColorCalibrator.detect_color(1, left_color) == "dark_blue":
+                    color = "dark_blue"
+                elif ColorCalibrator.detect_color(1, left_color) == "black":
                     color = "black"
+                else:
+                    color = "yellow"
+                # else:
+                #     print("Marty's foot is not on the ground.")
+                #     color = "black"
                 return color
             except Exception as e:
                 print("An error occurred while getting the color sensor reading: " + str(e))
@@ -194,7 +214,9 @@ class MartyController:
 
 
     def auto_guide(self):
-        for route in self.routes:
+        GenerateRoute.produce_route()
+        print(GenerateRoute.routes)
+        for route in GenerateRoute.routes:
             if self.route_codes[route["origin"]] == "begin":
                 self.get_ready()
                 self.forward(route["distance"])
@@ -226,9 +248,9 @@ class MartyController:
                 top_three.append(item)
         return [item for item in top_three]
 
-    def reconnaissance(self):
+    def reconnaissance1(self):
         forward_or_backward_steps = 13
-        right_steps = 7
+        right_steps = 8
         colors = list()
         for _ in range(forward_or_backward_steps):
             colors.append(self.get_color_sensor())
@@ -240,8 +262,8 @@ class MartyController:
         top_colors = self.top_occurrences(colors)
         print(top_colors)
         for i in range(self.grille_size):
-            if self.grille[0][i] == "black":
-                self.grille[0][i] = top_colors[i]
+            if GridManager.grille[0][i] == "black":
+                GridManager.grille[0][i] = top_colors[i]
         for _ in range(right_steps):
             self.right_side_step()
         print(colors)
@@ -256,8 +278,8 @@ class MartyController:
         top_colors.reverse()
         print(top_colors)
         for i in range(self.grille_size):
-            if self.grille[0][i] == "black":
-                self.grille[1][i] = top_colors[i]
+            if GridManager.grille[0][i] == "black":
+                GridManager.grille[1][i] = top_colors[i]
         for _ in range(right_steps):
             self.right_side_step()
         print(colors)
@@ -271,11 +293,64 @@ class MartyController:
         top_colors = self.top_occurrences(colors)
         print(top_colors)
         for i in range(self.grille_size):
-            if self.grille[0][i] == "black":
-                self.grille[2][i] = top_colors[i]
+            if GridManager.grille[0][i] == "black":
+                GridManager.grille[2][i] = top_colors[i]
         print(colors)
 
-        print(self.grille)
+        print(GridManager.grille)
+
+    def reconnaissance(self):
+        forward_or_backward_steps = 7
+        right_steps = 7
+        colors = list()
+
+        ligne = 0
+        colors.append(self.get_color_sensor())
+        self.forward(forward_or_backward_steps)
+        colors.append(self.get_color_sensor())
+        self.forward(forward_or_backward_steps)
+        colors.append(self.get_color_sensor())
+        for i in range(GridManager.grille_size):
+            if GridManager.grille[ligne][i]=="black":
+                GridManager.grille[ligne][i] = colors[i]
+            elif GridManager.grille[ligne][i] != colors[i]:
+                if GridManager.grille[ligne][0] == GridManager.grille[ligne][1] or GridManager.grille[ligne][1] == GridManager.grille[ligne][2]:
+                    GridManager.grille[ligne][i] = colors[i]
+        colors = list()
+
+
+        ligne = 1
+        self.right_side_step(right_steps)
+        colors.append(self.get_color_sensor())
+        self.backward(forward_or_backward_steps)
+        colors.append(self.get_color_sensor())
+        self.backward(forward_or_backward_steps)
+        colors.append(self.get_color_sensor())
+        colors.reverse()
+        for i in range(GridManager.grille_size):
+            if GridManager.grille[ligne][i]=="black":
+                GridManager.grille[ligne][i] = colors[i]
+            elif GridManager.grille[ligne][i] != colors[i]:
+                if GridManager.grille[ligne][0] == GridManager.grille[ligne][1] or GridManager.grille[ligne][1] == GridManager.grille[ligne][2]:
+                    GridManager.grille[ligne][i] = colors[i]
+        colors = list()
+
+        ligne = 2
+        self.right_side_step(right_steps)
+        colors.append(self.get_color_sensor())
+        self.forward(forward_or_backward_steps)
+        colors.append(self.get_color_sensor())
+        self.forward(forward_or_backward_steps)
+        colors.append(self.get_color_sensor())
+        for i in range(GridManager.grille_size):
+            if GridManager.grille[ligne][i]=="black":
+                GridManager.grille[ligne][i] = colors[i]
+            elif GridManager.grille[ligne][i] != colors[i]:
+                if GridManager.grille[ligne][0] == GridManager.grille[ligne][1] or GridManager.grille[ligne][1] == GridManager.grille[ligne][2]:
+                    GridManager.grille[ligne][i] = colors[i]
+        colors = list()
+
+        print(GridManager.grille)
 
     def auto_marty1(self):
         self.reconnaissance()
